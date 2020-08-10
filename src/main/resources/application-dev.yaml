@@ -21,7 +21,7 @@ mybatis:
 
 logging:
   level:
-    com.hogwartstest.aitestmini.dao: debug #打印sql
+    com.hogwartsmini.demo.dao: debug #打印sql
 
 hogwarts:
   key1: Hogwarts232

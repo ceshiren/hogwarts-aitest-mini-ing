@@ -16,8 +16,27 @@
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
 
- <!-- <select id="selectHogwartsTestUser" parameterType="int" resultType="BaseResultMap">
-    SELECT * FROM hogwarts_test_user WHERE ID = #{id}
-  </select>-->
+
+  <update id="updateUserDemo">
+    update hogwarts_test_user set
+        user_name = #{username},
+        password = #{password},
+        email = #{email}
+    where id = #{id}
+  </update>
+
+
+  <select id="getByName"
+          resultType="HogwartsTestUser">
+    SELECT * FROM hogwarts_test_user
+    <where>
+      <if test="userId != null">
+        id = #{userId}
+      </if>
+      <if test="userName != null and userName != ''">
+        and user_name like concat('%', #{userName}, '%')
+      </if>
+    </where>
+  </select>
 
 </mapper>

@@ -60,4 +60,8 @@ public class HogwartsTestUser extends BaseEntityNew {
      */
     @Column(name = "update_time")
     private Date updateTime;
+
+    /*@Transient
+    private String projectName;*/
+
 }
