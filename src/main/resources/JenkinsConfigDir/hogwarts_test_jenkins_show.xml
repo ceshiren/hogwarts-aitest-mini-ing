@@ -1,0 +1,43 @@
+<project>
+    <description/>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.StringParameterDefinition>
+                    <name>userId</name>
+                    <description>用户id</description>
+                    <defaultValue>12</defaultValue>
+                    <trim>true</trim>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.TextParameterDefinition>
+                    <name>remark</name>
+                    <description>备注信息</description>
+                    <defaultValue>霍格沃兹测试学院测试平台演示-Jenkins调用</defaultValue>
+                    <trim>false</trim>
+                </hudson.model.TextParameterDefinition>
+                <hudson.model.TextParameterDefinition>
+                    <name>testCommand</name>
+                    <description>测试命令</description>
+                    <defaultValue>霍格沃兹测试学院测试平台演示-测试命令</defaultValue>
+                    <trim>false</trim>
+                </hudson.model.TextParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <scm class="hudson.scm.NullSCM"/>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <triggers/>
+    <concurrentBuild>false</concurrentBuild>
+    <builders/>
+    <builders>
+        <hudson.tasks.Shell>
+            <command>eval "${testCommand}"</command>
+        </hudson.tasks.Shell>
+    </builders>
+    <publishers/>
+    <buildWrappers/>
+</project>
