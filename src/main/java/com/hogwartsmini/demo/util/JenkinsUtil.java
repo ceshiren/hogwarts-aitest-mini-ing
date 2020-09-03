@@ -18,6 +18,11 @@ import java.util.Map;
  **/
 public class JenkinsUtil {
 
+    //实际执行测试时使用的配置
+   /* public static void main(String[] args) throws IOException, URISyntaxException {
+        build("hogwarts_test_mini_start_test_12","12","token","pwd");
+    }*/
+
     public static void build(String jobName, String userId, String remark,String testCommand) throws IOException, URISyntaxException {
 
         ClassPathResource classPathResource = new ClassPathResource("JenkinsConfigDir/hogwarts_test_jenkins_show.xml");
@@ -47,6 +52,13 @@ public class JenkinsUtil {
         map.put("userId",userId);
         map.put("remark",remark);
         map.put("testCommand",testCommand);
+
+        //实际执行测试时使用的配置
+        /*Map<String,String> map = new HashMap<>();
+        map.put("aitestBaseUrl",userId);
+        map.put("token",remark);
+        map.put("testCommand",testCommand);
+        map.put("updateStatusData","pwd");*/
 
         job.build(map,true);
 
