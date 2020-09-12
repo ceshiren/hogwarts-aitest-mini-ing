@@ -2,8 +2,7 @@ package com.hogwartsmini.demo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.hogwartsmini.demo.common.ResultDto;
-import com.hogwartsmini.demo.common.ServiceException;
+import com.hogwartsmini.demo.common.*;
 import com.hogwartsmini.demo.dto.AddHogwartsTestUserDto;
 import com.hogwartsmini.demo.dto.BuildDto;
 import com.hogwartsmini.demo.dto.UpdateHogwartsTestUserDto;
@@ -20,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -37,24 +37,19 @@ public class HogwartsTestUserController {
     @Autowired
     private HogwartsTestUserService hogwartsTestUserService;
 
+    @Autowired
+    private TokenDb tokenDb;
+
     @Value("${hogwarts.key1}")
     private String hogwartsKey1;
 
     @ApiOperation("登录接口")
     //@RequestMapping(value = "login", method = RequestMethod.POST)
     @PostMapping("login")
-    public ResultDto<UserDto> login(@RequestBody UserDto userDto){
+    public ResultDto<HogwartsToken> login(@RequestBody UserDto userDto){
 
-        String result = hogwartsTestUserService.login(userDto);
+        return hogwartsTestUserService.login(userDto);
 
-        if(userDto.getName().contains("error2")){
-            throw new NullPointerException();
-        }
-        if(userDto.getName().contains("error")){
-            ServiceException.throwEx("用户名中含有error");
-        }
-
-        return ResultDto.success("成功 " + result + " hogwartsKey1= "+ hogwartsKey1,userDto);
     }
 
 
@@ -122,6 +117,17 @@ public class HogwartsTestUserController {
         System.out.println("RequestParam userId" + userId);
         System.out.println("RequestParam id" + id);
         return "成功 RequestParam  " + userId + " id= " + id;
+    }
+    //@RequestMapping(value = "byId", method = RequestMethod.GET)
+    @GetMapping("isLogin")
+    public ResultDto isLogin(HttpServletRequest request){
+
+        //1、从请求的Header获取客户端附加token
+        String tokenStr = request.getHeader(UserBaseStr.LOGIN_TOKEN);
+
+        TokenDto tokenDto = tokenDb.getUserInfo(tokenStr);
+
+        return ResultDto.success("成功",tokenDto);
     }
 
     //@RequestMapping(value = "byId", method = RequestMethod.GET)
