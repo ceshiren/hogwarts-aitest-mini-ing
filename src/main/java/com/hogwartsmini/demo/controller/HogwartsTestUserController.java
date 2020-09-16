@@ -127,6 +127,10 @@ public class HogwartsTestUserController {
 
         TokenDto tokenDto = tokenDb.getUserInfo(tokenStr);
 
+        //更新token中信息
+        /*tokenDto.setDefaultJenkinsId(10);
+        tokenDb.addUserInfo(tokenDto.getToken(),tokenDto);*/
+
         return ResultDto.success("成功",tokenDto);
     }
 
