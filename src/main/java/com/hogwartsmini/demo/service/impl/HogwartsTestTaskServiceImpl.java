@@ -198,7 +198,6 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
                 testCommand.append(" || true");
                 testCommand.append("\n");
             }
-
         }
 
         testCommand.append("\n");
