@@ -48,7 +48,7 @@ public class HogwartsTestCase extends BaseEntityNew {
     private Date updateTime;
 
     /**
-     * 方法名
+     * 测试用例数据
      */
     @Column(name = "case_data")
     private String caseData;
@@ -180,7 +180,7 @@ public class HogwartsTestCase extends BaseEntityNew {
     }
 
     /**
-     * 获取方法名
+     * 获取测试数据
      *
      * @return case_data - 方法名
      */

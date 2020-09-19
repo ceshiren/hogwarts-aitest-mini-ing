@@ -1,5 +1,9 @@
 package com.hogwartsmini.demo.util;
 
+import com.alibaba.fastjson.JSONObject;
+import com.hogwartsmini.demo.common.UserBaseStr;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
+import com.hogwartsmini.demo.entity.HogwartsTestTask;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import com.offbytwo.jenkins.model.Job;
@@ -71,6 +75,30 @@ public class JenkinsUtil {
         job.build(true);*/
 
 
+    }
+
+
+    public static StringBuilder getUpdateTaskStatusUrl(RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask) {
+
+        StringBuilder updateStatusUrl = new StringBuilder();
+
+        updateStatusUrl.append("curl -X PUT ");
+        updateStatusUrl.append("\""+requestInfoDto.getBaseUrl() + "/task/status \" ");
+        updateStatusUrl.append("-H \"Content-Type: application/json \" ");
+        updateStatusUrl.append("-H \"token: "+requestInfoDto.getToken()+"\" ");
+        updateStatusUrl.append("-d ");
+        JSONObject json = new JSONObject();
+
+        //确认修改状态的任务
+        json.put("taskId",hogwartsTestTask.getId());
+        //
+        json.put("status", UserBaseStr.STATUS_THREE);
+        //Jenkins的构建地址
+        json.put("buildUrl","${BUILD_URL}");
+
+        updateStatusUrl.append("'"+json.toJSONString()+"'");
+
+        return updateStatusUrl;
     }
 
 }
