@@ -4,13 +4,11 @@ import com.hogwartsmini.demo.common.*;
 import com.hogwartsmini.demo.dao.*;
 import com.hogwartsmini.demo.dto.AllureReportDto;
 import com.hogwartsmini.demo.dto.RequestInfoDto;
+import com.hogwartsmini.demo.dto.jenkins.OperateJenkinsJobDto;
 import com.hogwartsmini.demo.dto.jenkins.QueryHogwartsTestJenkinsListDto;
 import com.hogwartsmini.demo.dto.task.AddHogwartsTestTaskDto;
 import com.hogwartsmini.demo.dto.task.TestTaskDto;
-import com.hogwartsmini.demo.entity.HogwartsTestCase;
-import com.hogwartsmini.demo.entity.HogwartsTestJenkins;
-import com.hogwartsmini.demo.entity.HogwartsTestTask;
-import com.hogwartsmini.demo.entity.HogwartsTestTaskCaseRel;
+import com.hogwartsmini.demo.entity.*;
 import com.hogwartsmini.demo.service.HogwartsTestJenkinsService;
 import com.hogwartsmini.demo.service.HogwartsTestTaskService;
 import com.hogwartsmini.demo.util.JenkinsUtil;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.security.sasl.SaslException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -246,6 +245,7 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
      * @param hogwartsTestTask
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResultDto startTask(TokenDto tokenDto, RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask) throws IOException, URISyntaxException {
         //参数校验和默认Jenkins是否有效
@@ -262,6 +262,14 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
         if(Objects.isNull(resultHogwartsTestJenkins)){
             return ResultDto.fail("默认Jenkins信息为空");
         }
+
+        //获取用户信息
+
+        //做userId和resultHogwartsTestUser非空校验
+        HogwartsTestUser queryHogwartsTestUser = new HogwartsTestUser();
+        queryHogwartsTestUser.setId(tokenDto.getUserId());
+        HogwartsTestUser resultHogwartsTestUser = hogwartsTestUserMapper.selectOne(queryHogwartsTestUser);
+
         //根据任务Id查询测试任务
 
         HogwartsTestTask queryHogwartsTestTask = new HogwartsTestTask();
@@ -290,7 +298,24 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
         map.put("testCommand",testCommand);
         map.put("updateStatusData",updateStatusUrlStr);
         //调用Jenkins
-        //JenkinsUtil.build();
+
+        OperateJenkinsJobDto operateJenkinsJobDto = new OperateJenkinsJobDto();
+        operateJenkinsJobDto.setTokenDto(tokenDto);
+        operateJenkinsJobDto.setHogwartsTestJenkins(resultHogwartsTestJenkins);
+        operateJenkinsJobDto.setHogwartsTestUser(resultHogwartsTestUser);
+        operateJenkinsJobDto.setParams(map);
+
+        ResultDto<HogwartsTestUser> resultDto = JenkinsUtil.build(operateJenkinsJobDto);
+
+        if(0==resultDto.getResultCode()){
+            throw new SaslException(resultDto.getMessage());
+        }
+
+        //更新用户信息，主要是 为了更新StartTestJobName
+        //先取出来hogwartsTestUser.getStartTestJobName();,然后判断是否为空，为空才更新
+        HogwartsTestUser hogwartsTestUser = resultDto.getData();
+
+        hogwartsTestUserMapper.updateByPrimaryKeySelective(hogwartsTestUser);
 
         return ResultDto.success("成功",resultHogwartsTestTask);
     }
