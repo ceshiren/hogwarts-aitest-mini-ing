@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -116,12 +117,14 @@ public class HogwartsTestUserController {
     }
 
     //@RequestMapping(value = "byId", method = RequestMethod.GET)
-    @GetMapping("byId")
-    public String getById2(@RequestParam(value = "userId", required = false) Long userId, @RequestParam("id") Long id){
+    @GetMapping("isLogin")
+    public ResultDto isLogin(HttpServletRequest request){
 
-        System.out.println("RequestParam userId" + userId);
-        System.out.println("RequestParam id" + id);
-        return "成功 RequestParam  " + userId + " id= " + id;
+        //1、从请求的Header获取客户端附加token
+       /* String tokenStr = request.getHeader(UserBaseStr.LOGIN_TOKEN);
+
+        TokenDto tokenDto = tokenDb.getUserInfo(tokenStr);*/
+        return ResultDto.success("成功",null);
     }
 
     //@RequestMapping(value = "byId", method = RequestMethod.GET)
