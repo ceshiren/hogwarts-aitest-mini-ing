@@ -1,5 +1,6 @@
 package com.hogwartsmini.demo.service;
 
+import com.hogwartsmini.demo.common.HogwartsToken;
 import com.hogwartsmini.demo.common.ResultDto;
 import com.hogwartsmini.demo.dto.UserDto;
 import com.hogwartsmini.demo.entity.HogwartsTestUser;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface HogwartsTestUserService {
 
-    String login(UserDto userDto);
+    ResultDto<HogwartsToken> login(UserDto userDto);
 
     /**
      *  保存

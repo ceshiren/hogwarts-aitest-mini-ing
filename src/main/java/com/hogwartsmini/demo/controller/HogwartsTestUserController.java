@@ -2,8 +2,7 @@ package com.hogwartsmini.demo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.hogwartsmini.demo.common.ResultDto;
-import com.hogwartsmini.demo.common.ServiceException;
+import com.hogwartsmini.demo.common.*;
 import com.hogwartsmini.demo.dto.AddHogwartsTestUserDto;
 import com.hogwartsmini.demo.dto.BuildDto;
 import com.hogwartsmini.demo.dto.UpdateHogwartsTestUserDto;
@@ -20,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -35,6 +35,9 @@ import java.util.List;
 public class HogwartsTestUserController {
 
     @Autowired
+    private TokenDb tokenDb;
+
+    @Autowired
     private HogwartsTestUserService hogwartsTestUserService;
 
     @Value("${hogwarts.key1}")
@@ -43,18 +46,18 @@ public class HogwartsTestUserController {
     @ApiOperation("登录接口")
     //@RequestMapping(value = "login", method = RequestMethod.POST)
     @PostMapping("login")
-    public ResultDto<UserDto> login(@RequestBody UserDto userDto){
+    public ResultDto<HogwartsToken> login(@RequestBody UserDto userDto){
 
-        String result = hogwartsTestUserService.login(userDto);
+        return hogwartsTestUserService.login(userDto);
 
-        if(userDto.getName().contains("error2")){
+        /*if(userDto.getName().contains("error2")){
             throw new NullPointerException();
         }
         if(userDto.getName().contains("error")){
             ServiceException.throwEx("用户名中含有error");
         }
 
-        return ResultDto.success("成功 " + result + " hogwartsKey1= "+ hogwartsKey1,userDto);
+        return ResultDto.success("成功 " + result + " hogwartsKey1= "+ hogwartsKey1,userDto);*/
     }
 
 
@@ -138,6 +141,23 @@ public class HogwartsTestUserController {
 
         return hogwartsTestUserService.getByName(hogwartsTestUser);
     }
+
+    //@RequestMapping(value = "byId", method = RequestMethod.GET)
+    @GetMapping("isLogin")
+    public ResultDto isLogin(HttpServletRequest request){
+
+        //1、从请求的Header获取客户端附加token
+        String tokenStr = request.getHeader(UserBaseStr.LOGIN_TOKEN);
+
+        TokenDto tokenDto = tokenDb.getUserInfo(tokenStr);
+
+        //更新token中信息
+        /*tokenDto.setDefaultJenkinsId(10);
+        tokenDb.addUserInfo(tokenDto.getToken(),tokenDto);*/
+
+        return ResultDto.success("成功",tokenDto);
+    }
+
 
 
     @ApiOperation("调用Jenkins构建job")
