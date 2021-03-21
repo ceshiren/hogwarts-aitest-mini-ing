@@ -26,8 +26,10 @@ public class DemoInterceptor implements HandlerInterceptor {
 
 
         String requestURI = request.getRequestURI();
+        String requestURL = request.getRequestURL().toString();
         log.info("=== preHandle ====");
         log.info("=== request.getRequestURI() ====" + request.getRequestURI());
+        log.info("=== request.requestURL() ====" + requestURL);
 
 
         if(requestURI.equalsIgnoreCase("/hogwartsUser/login")

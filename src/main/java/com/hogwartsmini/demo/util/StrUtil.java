@@ -55,4 +55,10 @@ public class StrUtil {
         return http+tempUrl;
     }
 
+    public static void main(String[] args) {
+
+        System.out.println(getHostAndPort("http://localhost:8081/hogwartsUser/login"));
+
+    }
+
 }

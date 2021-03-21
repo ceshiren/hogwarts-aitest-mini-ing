@@ -20,6 +20,12 @@ public interface HogwartsTestTaskService {
      */
     ResultDto<HogwartsTestTask> save(TestTaskDto testTaskDto, Integer taskType);
 
+    /**
+     *  开始执行测试任务信息
+     * @param hogwartsTestTask
+     * @return
+     */
+    ResultDto startTask(TokenDto tokenDto, RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask) throws IOException, URISyntaxException;
 
     /**
      *  修改测试任务状态信息

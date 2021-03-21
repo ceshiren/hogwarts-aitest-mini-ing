@@ -17,6 +17,8 @@ public class UserBaseStr {
     public static final Integer STATUS_ONE = 1;
     //任务状态 2 执行中
     public static final Integer STATUS_TWO = 2;
+    //任务状态 3 执行完成
+    public static final Integer STATUS_THREE = 3;
     //删除标志 未删除
     public static final Integer DEL_FLAG_ONE = 1;
     //删除标志 已删除

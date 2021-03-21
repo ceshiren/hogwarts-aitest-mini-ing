@@ -17,7 +17,6 @@ public class OperateJenkinsJobDto {
 
     private TokenDto tokenDto;
 
-
     private HogwartsTestJenkins hogwartsTestJenkins;
 
     private HogwartsTestUser hogwartsTestUser;
