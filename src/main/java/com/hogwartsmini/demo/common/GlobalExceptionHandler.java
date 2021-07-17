@@ -35,15 +35,16 @@ public class GlobalExceptionHandler {
     }
 
     public ResultDto resultFormat(Throwable t){
+        t.printStackTrace();
         log.error(t.getMessage());
         String tips = "系统繁忙，请稍后重试";
 
         if(t instanceof ServiceException){
-            return ResultDto.fail("业务异常  " + tips);
+            return ResultDto.fail("业务异常  " + t.getMessage());
         }
 
         if(t instanceof Exception){
-            return ResultDto.fail("非业务异常  " + tips);
+            return ResultDto.fail("非业务异常  " + t.getMessage());
         }
 
         return ResultDto.fail(tips);

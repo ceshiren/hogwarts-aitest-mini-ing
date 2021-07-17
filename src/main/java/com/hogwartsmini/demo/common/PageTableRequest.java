@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 分页查询参数
@@ -22,6 +23,6 @@ public class PageTableRequest<Dto extends BaseDto> implements Serializable {
     @ApiModelProperty(value="每页数据量",required=true, example = "10")
     private Integer pageSize = 10;
     @ApiModelProperty(value="特定查询参数",required=true, example = "status=1")
-    private Dto params;
+    private Map params;
 }
 
