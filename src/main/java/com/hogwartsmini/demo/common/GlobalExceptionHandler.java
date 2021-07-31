@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler({ServiceException.class})
     public ResultDto serviceExceptionHandler(ServiceException se){
         return resultFormat(se);

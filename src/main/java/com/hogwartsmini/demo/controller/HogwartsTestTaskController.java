@@ -5,9 +5,7 @@ import com.hogwartsmini.demo.common.TokenDb;
 import com.hogwartsmini.demo.common.TokenDto;
 import com.hogwartsmini.demo.common.UserBaseStr;
 import com.hogwartsmini.demo.dto.RequestInfoDto;
-import com.hogwartsmini.demo.dto.task.AddHogwartsTestTaskDto;
-import com.hogwartsmini.demo.dto.task.StartTestDto;
-import com.hogwartsmini.demo.dto.task.TestTaskDto;
+import com.hogwartsmini.demo.dto.task.*;
 import com.hogwartsmini.demo.dto.testcase.AddHogwartsTestCaseDto;
 import com.hogwartsmini.demo.entity.HogwartsTestTask;
 import com.hogwartsmini.demo.service.HogwartsTestTaskService;
@@ -107,6 +105,20 @@ public class HogwartsTestTaskController {
         requestInfoDto.setToken(tokenDto.getToken());
 
         return hogwartsTestTaskService.startTask(tokenDto, requestInfoDto,hogwartsTestTask);
+
+    }
+
+
+    @ApiOperation("执行测试任务接口")
+    //@RequestMapping(value = "login", method = RequestMethod.POST)
+    @PostMapping("status")
+    public ResultDto updateTaskStatus(HttpServletRequest request
+            , @RequestBody UpdateHogwartsTestTaskStatusDto updateHogwartsTestTaskDto) throws IOException, URISyntaxException {
+
+        HogwartsTestTask hogwartsTestTask = new HogwartsTestTask();
+
+
+        return hogwartsTestTaskService.updateStatus(hogwartsTestTask);
 
     }
 }

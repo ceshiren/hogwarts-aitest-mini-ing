@@ -36,7 +36,9 @@ public class ReportUtil {
      * @return
      */
 
-    public static String getAllureReportUrl(String buildUrl, HogwartsTestJenkins hogwartsTestJenkins, boolean autoLoginJenkinsFlag){
+    public static String getAllureReportUrl(String buildUrl
+            , HogwartsTestJenkins hogwartsTestJenkins
+            , boolean autoLoginJenkinsFlag){
 
         if(StringUtils.isEmpty(buildUrl) || !buildUrl.contains("/job")){
             return buildUrl;
@@ -55,7 +57,8 @@ public class ReportUtil {
      * @param hogwartsTestJenkins
      * @return
      */
-    private static String getAllureReportUrlAndLogin(String buildUrl, HogwartsTestJenkins hogwartsTestJenkins) {
+    private static String getAllureReportUrlAndLogin(String buildUrl
+            , HogwartsTestJenkins hogwartsTestJenkins) {
         String allureReportUrl;
         String allureReportBaseUrl = hogwartsTestJenkins.getUrl() + "j_acegi_security_check?j_username="+hogwartsTestJenkins.getUserName()
                 +"&j_password="+hogwartsTestJenkins.getPassword()+"&Submit=登录&remember_me=on"+"&from=";

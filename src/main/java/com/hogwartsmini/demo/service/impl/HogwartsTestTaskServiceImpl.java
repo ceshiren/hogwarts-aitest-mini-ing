@@ -4,13 +4,11 @@ import com.hogwartsmini.demo.common.*;
 import com.hogwartsmini.demo.dao.*;
 import com.hogwartsmini.demo.dto.AllureReportDto;
 import com.hogwartsmini.demo.dto.RequestInfoDto;
+import com.hogwartsmini.demo.dto.jenkins.OperateJenkinsJobDto;
 import com.hogwartsmini.demo.dto.jenkins.QueryHogwartsTestJenkinsListDto;
 import com.hogwartsmini.demo.dto.task.AddHogwartsTestTaskDto;
 import com.hogwartsmini.demo.dto.task.TestTaskDto;
-import com.hogwartsmini.demo.entity.HogwartsTestCase;
-import com.hogwartsmini.demo.entity.HogwartsTestJenkins;
-import com.hogwartsmini.demo.entity.HogwartsTestTask;
-import com.hogwartsmini.demo.entity.HogwartsTestTaskCaseRel;
+import com.hogwartsmini.demo.entity.*;
 import com.hogwartsmini.demo.service.HogwartsTestJenkinsService;
 import com.hogwartsmini.demo.service.HogwartsTestTaskService;
 import com.hogwartsmini.demo.util.JenkinsUtil;
@@ -148,23 +146,74 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
 
     /**
      *  生成测试命令
-     * @param testCommand
+     * @param testCommandStr
      * @param resultHogwartsTestJenkins
      * @param hogwartsTestCaseList
      */
-    private void makeTestCommand(StringBuilder testCommand, HogwartsTestJenkins resultHogwartsTestJenkins, List<HogwartsTestCase> hogwartsTestCaseList) {
+    private void makeTestCommand(StringBuilder testCommandStr, HogwartsTestJenkins resultHogwartsTestJenkins, List<HogwartsTestCase> hogwartsTestCaseList) {
         //校验Jenkins是否为空
-        //获取commandRunCaseType、testCommand
-        //用例类型为空，则设置默认类型为文本
-        //文本类型处理方式
-        //拼装命令前缀
-         //拼装测试数据
-        //文件类型
-        //校验测试用例后缀名
-        //拼装curl命令-下载测试用例数据
-        //拼装测试命令
 
-        testCommand.append("\n");
+        if(Objects.isNull(resultHogwartsTestJenkins)){
+            ServiceException.throwEx("Jenkins为空");
+        }
+        //获取commandRunCaseType、testCommand
+        String testCommand = resultHogwartsTestJenkins.getTestCommand();
+        Integer commandRunCaseType = resultHogwartsTestJenkins.getCommandRunCaseType();
+
+        if(StringUtils.isEmpty(testCommand)){
+            ServiceException.throwEx("Jenkins的测试命令为空");
+        }
+
+        //用例类型为空，则设置默认类型为文本
+        if(StringUtils.isEmpty(resultHogwartsTestJenkins.getCommandRunCaseType())){
+            commandRunCaseType = 1;
+        }
+
+        testCommandStr.append("pwd").append("\n");
+        //文本类型处理方式
+
+        if(commandRunCaseType==1){
+
+            for (int i = 0; i < hogwartsTestCaseList.size(); i++) {
+                HogwartsTestCase hogwartsTestCase = hogwartsTestCaseList.get(i);
+                //拼装命令前缀
+                testCommandStr.append(testCommand)
+                        .append(" ")
+                        //拼装测试数据
+                        .append(hogwartsTestCase.getCaseData())
+                        .append("\n");
+            }
+
+        }
+
+        //文件类型
+        if(commandRunCaseType==2){
+
+            //校验测试用例后缀名
+            String commandRunCaseSuffix = resultHogwartsTestJenkins.getCommandRunCaseSuffix();
+
+            for (int i = 0; i < hogwartsTestCaseList.size(); i++) {
+
+
+                HogwartsTestCase hogwartsTestCase = hogwartsTestCaseList.get(i);
+
+                //拼装curl命令-下载测试用例数据
+                makeCurlCommand(testCommandStr, hogwartsTestCase, commandRunCaseSuffix);
+
+                //拼装测试命令
+                testCommandStr.append(testCommand)
+                        .append(" ")
+                        //拼装测试数据
+                        .append(hogwartsTestCase.getCaseName())
+                        .append(".")
+                        .append(commandRunCaseSuffix)
+                        .append(" || true")
+                        .append("\n");
+            }
+
+        }
+
+        testCommandStr.append("\n");
     }
 
     /**
@@ -174,6 +223,21 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
      * @param commandRunCaseSuffix
      */
     private void makeCurlCommand(StringBuilder testCommand, HogwartsTestCase hogwartsTestCase, String commandRunCaseSuffix) {
+
+        testCommand.append("curl ")
+                .append(" -o ");
+
+        String caseName = hogwartsTestCase.getCaseName();
+
+        testCommand.append(caseName)
+                .append(".")
+                .append(commandRunCaseSuffix)
+                .append(" ${aitestBaseUrl}/testCase/data")
+                .append(hogwartsTestCase.getId())
+                .append(" -H \\\"token: ${token}\\\"")
+                .append(" || true")
+                .append("\n");
+        ;
 
     }
 
@@ -200,11 +264,92 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
      * @param hogwartsTestTask
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResultDto startTask(TokenDto tokenDto, RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask) throws IOException, URISyntaxException {
 
+        //参数校验和默认Jenkins是否有效
 
-        return ResultDto.success("成功");
+        Integer defaultJenkinsId = tokenDto.getDefaultJenkinsId();
+
+        if(Objects.isNull(defaultJenkinsId)){
+            return  ResultDto.fail("默认Jenkins未设置");
+        }
+
+        Integer userId = tokenDto.getUserId();
+
+        HogwartsTestUser queryUser = new HogwartsTestUser();
+        queryUser.setId(userId);
+
+        HogwartsTestUser resultUser = hogwartsTestUserMapper.selectOne(queryUser);
+
+        HogwartsTestJenkins queryHogwartsTestJenkins = new HogwartsTestJenkins();
+
+        queryHogwartsTestJenkins.setId(defaultJenkinsId);
+        queryHogwartsTestJenkins.setCreateUserId(userId);
+
+        HogwartsTestJenkins resultHogwartsTestJenkins  = hogwartsTestJenkinsMapper.selectOne(queryHogwartsTestJenkins);
+
+        if(Objects.isNull(resultHogwartsTestJenkins)){
+            return  ResultDto.fail("默认Jenkins未查到");
+        }
+
+        //查询测试任务
+
+        HogwartsTestTask queryHogwartsTestTask = new HogwartsTestTask();
+
+        queryHogwartsTestTask.setCreateUserId(hogwartsTestTask.getCreateUserId());
+        queryHogwartsTestTask.setStatus(UserBaseStr.STATUS_ONE);
+        queryHogwartsTestTask.setId(hogwartsTestTask.getId());
+
+        HogwartsTestTask resultHogwartsTestTask = hogwartsTestTaskMapper.selectOne(queryHogwartsTestTask);
+
+        if(Objects.isNull(resultHogwartsTestTask)){
+            return ResultDto.fail("任务未查到，请确认");
+        }
+
+        //获取测试命令并更新任务状态为执行中
+
+        String testCommand = resultHogwartsTestTask.getTestCommand();
+        resultHogwartsTestTask.setStatus(UserBaseStr.STATUS_TWO);
+
+        hogwartsTestTaskMapper.updateByPrimaryKeySelective(resultHogwartsTestTask);
+
+        //获取更新任务状态的回调地址updateStatusUrl
+
+        StringBuilder updateTaskStatusStr = JenkinsUtil
+                .getUpdateTaskStatusUrl(requestInfoDto, resultHogwartsTestTask);
+
+
+        //组装Jenkins构建参数
+
+        Map map = new HashMap();
+
+        map.put("aitestBaseUrl",requestInfoDto.getBaseUrl());
+        map.put("token",requestInfoDto.getToken());
+        map.put("testCommand",testCommand);
+        map.put("updateStatusData",updateTaskStatusStr.toString());
+
+        //调用Jenkins
+
+        OperateJenkinsJobDto operateJenkinsJobDto = new OperateJenkinsJobDto();
+
+        operateJenkinsJobDto.setTokenDto(tokenDto);
+        operateJenkinsJobDto.setHogwartsTestJenkins(resultHogwartsTestJenkins);
+        operateJenkinsJobDto.setParams(map);
+        operateJenkinsJobDto.setHogwartsTestUser(resultUser);
+
+        ResultDto<HogwartsTestUser> resultDto = JenkinsUtil.build2(operateJenkinsJobDto);
+
+        if(resultDto.getResultCode()==0){
+            ServiceException.throwEx(resultDto.getMessage());
+        }
+
+        HogwartsTestUser resultHogwartsTestUser = resultDto.getData();
+
+        hogwartsTestUserMapper.updateByPrimaryKeySelective(resultHogwartsTestUser);
+
+        return ResultDto.success("成功",resultHogwartsTestTask);
     }
 
     /**

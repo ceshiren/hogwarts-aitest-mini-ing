@@ -2,6 +2,7 @@ package com.hogwartsmini.demo.dto.jenkins;
 
 import com.hogwartsmini.demo.common.TokenDto;
 import com.hogwartsmini.demo.entity.HogwartsTestJenkins;
+import com.hogwartsmini.demo.entity.HogwartsTestUser;
 import lombok.Data;
 
 import java.util.Map;
@@ -21,5 +22,7 @@ public class OperateJenkinsJobDto {
 
     //构建参数
     private Map<String, String> params;
+
+    private HogwartsTestUser hogwartsTestUser;
 
 }

@@ -45,14 +45,21 @@ public class StrUtil {
 
         String http = "";
         String tempUrl = "";
+        //如果包含://，则截断
         if(requestUrl.contains("://")){
             http = requestUrl.substring(0,requestUrl.indexOf("://")+3);
             tempUrl = requestUrl.substring(requestUrl.indexOf("://")+3);
         }
+
+        //如果包含/，则截断
         if(tempUrl.contains("/")){
             tempUrl = tempUrl.substring(0,tempUrl.indexOf("/"));
         }
         return http+tempUrl;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getHostAndPort("http://localhost:8081/hogwartsTask/"));
     }
 
 }
