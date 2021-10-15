@@ -86,7 +86,8 @@ public class JenkinsUtil {
 
     public static ResultDto<HogwartsTestUser> build2(OperateJenkinsJobDto operateJenkinsJobDto) throws IOException, URISyntaxException {
 
-        ClassPathResource classPathResource = new ClassPathResource("JenkinsConfigDir/hogwarts_jenkins_test_start.xml");
+        ClassPathResource classPathResource =
+                new ClassPathResource("JenkinsConfigDir/hogwarts_jenkins_test_start.xml");
         InputStream inputStream = classPathResource.getInputStream();
 
         String jobConfigXml = FileUtil.getText(inputStream);
@@ -101,7 +102,8 @@ public class JenkinsUtil {
 
         String jobName = "hogwarts_test_mini_start_test_"+hogwartsTestUser.getId();
 
-        JenkinsHttpClient jenkinsHttpClient = new JenkinsHttpClient(new URI(baseUrl),userName,password);
+        JenkinsHttpClient jenkinsHttpClient = new JenkinsHttpClient(new URI(baseUrl)
+                ,userName,password);
         String jenkinsVersion = jenkinsHttpClient.getJenkinsVersion();
         System.out.println("jenkinsVersion== "+ jenkinsVersion);
 
@@ -119,7 +121,6 @@ public class JenkinsUtil {
         Job job = jobMap.get(jobName);
 
         job.build(params,true);
-
 
         return ResultDto.success("成功",hogwartsTestUser);
 
