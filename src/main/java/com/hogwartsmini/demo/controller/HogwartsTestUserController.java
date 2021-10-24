@@ -30,7 +30,7 @@ import java.util.List;
  **/
 @Api(tags = "霍格沃兹测试学院-用户管理模块")
 @RestController
-@RequestMapping("hogwartsUser")
+@RequestMapping("user")
 @Slf4j
 public class HogwartsTestUserController {
 

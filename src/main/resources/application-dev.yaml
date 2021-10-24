@@ -8,9 +8,9 @@ spring:
   application:
     name: hogwarts-mini
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/hogwarts-mini?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 12345678
+    url: jdbc:mysql://stuq.ceshiren.com:13306/aitest_mini_jmeter?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: hogwarts2020
+    password: aitest@hogwarts2020
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
@@ -25,3 +25,9 @@ logging:
 
 hogwarts:
   key1: Hogwarts232
+
+jmeter:
+  home: /opt/jmeter
+  result:
+    path: G:/ceba/jmeter_install_dir/demo/
+

@@ -25,8 +25,8 @@ public class HogwartsTestUserServiceImpl implements HogwartsTestUserService {
     @Override
     public String login(UserDto userDto){
 
-        System.out.println("userDto.getName()" + userDto.getName());
-        System.out.println("userDto.getPwd()" + userDto.getPwd());
+        System.out.println("userDto.getName()" + userDto.getUserName());
+        System.out.println("userDto.getPwd()" + userDto.getPassword());
 
         return userDto.getName() + "-" + userDto.getPwd();
     }
