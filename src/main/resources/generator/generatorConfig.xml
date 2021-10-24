@@ -17,7 +17,7 @@
         </plugin>
 
         <jdbcConnection driverClass="${jdbc.driverClass}"
-                        connectionURL="jdbc:mysql://127.0.0.1:3306/hogwarts-mini?characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai"
+                        connectionURL="jdbc:mysql://stuq.ceshiren.com:13306/aitest_mini_jmeter?characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai"
                         userId="${jdbc.user}"
                         password="${jdbc.password}">
         </jdbcConnection>
@@ -31,10 +31,11 @@
         <javaClientGenerator targetPackage="${targetMapperPackage}" targetProject="${targetJavaProject}"
                              type="XMLMAPPER"/>
 
-        <!-- 生成用户的相关类 -->
-        <table schema="hogwarts-mini" tableName="hogwarts_test_user" domainObjectName="HogwartsTestUser" enableCountByExample="false" enableDeleteByExample="false"
+        <!-- 生成测试用例的相关类 -->
+        <table schema="aitest_mini_jmeter" tableName="hogwarts_test_case" domainObjectName="HogwartsTestCase" enableCountByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" enableUpdateByExample="false" >
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+            <columnOverride column="del_flag" javaType="Integer" jdbcType="TINYINT" />
         </table>
 
     </context>
