@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author tlibn
@@ -23,12 +24,25 @@ public class HogwartsTestUserServiceImpl implements HogwartsTestUserService {
     private HogwartsTestUserMapper hogwartsTestUserMapper;
 
     @Override
-    public String login(UserDto userDto){
+    public ResultDto login(UserDto userDto){
 
-        System.out.println("userDto.getName()" + userDto.getName());
-        System.out.println("userDto.getPwd()" + userDto.getPwd());
+        System.out.println("userDto.getName()" + userDto.getUserName());
+        System.out.println("userDto.getPwd()" + userDto.getPassword());
 
-        return userDto.getName() + "-" + userDto.getPwd();
+        HogwartsTestUser query = new HogwartsTestUser();
+        query.setUserName(userDto.getUserName());
+        query.setPassword(userDto.getPassword());
+
+        HogwartsTestUser result = hogwartsTestUserMapper.selectOne(query);
+
+        if(Objects.isNull(result)){
+            return ResultDto.fail("用户名不存在或密码错误");
+        }
+        UserDto resp = new UserDto();
+        resp.setUserName(userDto.getUserName());
+        resp.setToken(result.getId()+"");
+
+        return ResultDto.success("成功", resp);
     }
 
     /**
@@ -42,6 +56,16 @@ public class HogwartsTestUserServiceImpl implements HogwartsTestUserService {
 
         hogwartsTestUser.setCreateTime(new Date());
         hogwartsTestUser.setUpdateTime(new Date());
+
+        HogwartsTestUser query = new HogwartsTestUser();
+        query.setUserName(hogwartsTestUser.getUserName());
+
+        HogwartsTestUser result = hogwartsTestUserMapper.selectOne(query);
+
+        if(Objects.nonNull(result)){
+            return ResultDto.fail("用户名已存在");
+        }
+
         hogwartsTestUserMapper.insertUseGeneratedKeys(hogwartsTestUser);
 
         return ResultDto.success("成功",hogwartsTestUser);

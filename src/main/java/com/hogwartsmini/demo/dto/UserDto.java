@@ -13,9 +13,12 @@ import lombok.Data;
 public class UserDto {
 
     @ApiModelProperty(value="用户名", example="hogwarts",required=true)
-    private String name;
+    private String userName;
 
     @ApiModelProperty(value="用户密码", example="hogwarts123",required=true)
-    private String pwd;
+    private String password;
+
+    @ApiModelProperty(hidden = true)
+    private String token;
 
 }
