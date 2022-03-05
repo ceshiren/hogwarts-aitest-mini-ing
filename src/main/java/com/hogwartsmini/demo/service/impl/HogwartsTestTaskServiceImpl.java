@@ -5,6 +5,7 @@ import com.hogwartsmini.demo.dao.HogwartsTestCaseMapper;
 import com.hogwartsmini.demo.dao.HogwartsTestTaskCaseRelMapper;
 import com.hogwartsmini.demo.dao.HogwartsTestTaskMapper;
 import com.hogwartsmini.demo.dao.HogwartsTestUserMapper;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
 import com.hogwartsmini.demo.dto.task.AddHogwartsTestTaskDto;
 import com.hogwartsmini.demo.dto.task.TestTaskDto;
 import com.hogwartsmini.demo.entity.HogwartsTestCase;
@@ -315,6 +316,86 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
         }
 
         return ResultDto.success("成功");
+    }
+
+    /**
+     * 执行测试接口
+     *
+     * @param requestInfoDto
+     * @param hogwartsTestTask
+     * @return
+     */
+    @Override
+    public ResultDto<HogwartsTestTask> startTest(RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask) {
+
+        //更新测试任务的状态
+        if(Objects.isNull(hogwartsTestTask)){
+            return ResultDto.fail("测试任务为空");
+        }
+
+        Integer taskId = hogwartsTestTask.getId();
+
+        if(Objects.isNull(taskId)){
+            return ResultDto.fail("测试任务id为空");
+        }
+
+        HogwartsTestTask queryHogwartsTestTask = new HogwartsTestTask();
+        queryHogwartsTestTask.setId(taskId);
+        queryHogwartsTestTask.setCreateUserId(hogwartsTestTask.getCreateUserId());
+
+        HogwartsTestTask result = hogwartsTestTaskMapper.selectOne(queryHogwartsTestTask);
+        if(Objects.isNull(result)){
+            return ResultDto.fail("测试任务不存在");
+        }
+
+        result.setStatus(Constants.STATUS_TWO);
+        result.setUpdateTime(new Date());
+
+        hogwartsTestTaskMapper.updateByPrimaryKeySelective(result);
+
+        //拼装Jenkins回调完整地址和参数
+        //品质Jenkins构建参数
+        //调度Jenkins
+        //修改对应数据的参数(用户表里的字段)
+
+        return ResultDto.success("成功");
+    }
+
+    /**
+     * 获取allure报告地址接口
+     *
+     * @param hogwartsTestTask
+     * @return
+     */
+    @Override
+    public ResultDto<String> getAllureReport(HogwartsTestTask hogwartsTestTask) {
+
+        if(Objects.isNull(hogwartsTestTask)){
+            return ResultDto.fail("测试任务参数为空");
+        }
+
+        Integer taskId = hogwartsTestTask.getId();
+
+        if(Objects.isNull(taskId)){
+            return ResultDto.fail("测试任务id为空");
+        }
+
+        HogwartsTestTask query = new HogwartsTestTask();
+
+        query.setId(hogwartsTestTask.getId());
+        query.setCreateUserId(hogwartsTestTask.getCreateUserId());
+
+        HogwartsTestTask result = hogwartsTestTaskMapper.selectOne(query);
+        if(Objects.isNull(result)){
+            return ResultDto.fail("测试任务不存在");
+        }
+        String buildUrl = result.getBuildUrl();
+
+        if(StringUtils.isEmpty(buildUrl)){
+            return ResultDto.fail("测试报告地址不存在");
+        }
+
+        return ResultDto.success("成功", buildUrl + "allure");
     }
 
 }

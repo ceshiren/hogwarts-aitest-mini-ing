@@ -31,6 +31,7 @@
     WHERE
       create_user_id = #{params.createUserId}
       AND del_flag = 1
+    order by update_time desc
       LIMIT #{pageNum},#{pageSize}
 
 

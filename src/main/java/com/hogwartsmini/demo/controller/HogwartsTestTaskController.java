@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hogwartsmini.demo.common.PageTableRequest;
 import com.hogwartsmini.demo.common.PageTableResponse;
 import com.hogwartsmini.demo.common.ResultDto;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
 import com.hogwartsmini.demo.dto.task.*;
 import com.hogwartsmini.demo.entity.HogwartsTestTask;
 import com.hogwartsmini.demo.service.HogwartsTestTaskService;
@@ -236,15 +237,36 @@ public class HogwartsTestTaskController {
      * @return
      * @throws Exception
      */
-   /* @PostMapping("start")
+    @PostMapping("start")
     @ApiOperation(value = "开始测试", notes = "开始测试-说明", httpMethod = "POST", response = ResultDto.class)
     public ResultDto testStart(HttpServletRequest request
             , @ApiParam(name="修改测试任务状态对象", required=true)@RequestBody StartTestDto startTestDto) throws Exception {
         log.info("=====开始测试-请求入参====："+ JSONObject.toJSONString(startTestDto));
 
+        if(Objects.isNull(startTestDto)){
+            return ResultDto.fail("参数为空");
+        }
+
+        Integer taskId = startTestDto.getTaskId();
+
+        if(Objects.isNull(taskId)){
+            return ResultDto.fail("任务id为空");
+        }
+
+        Integer userId = StrUtil.getUserId(request);
+
+        HogwartsTestTask hogwartsTestTask = new HogwartsTestTask();
+        hogwartsTestTask.setId(taskId);
+        hogwartsTestTask.setCreateUserId(userId);
+
+        RequestInfoDto requestInfoDto = new RequestInfoDto();
+        requestInfoDto.setBaseUrl(jenkinsCallbackUrl);
+        requestInfoDto.setToken(userId+"");
+
+        hogwartsTestTaskService.startTest(requestInfoDto, hogwartsTestTask);
 
         return null;
-    }*/
+    }
 
     /**
      *
@@ -257,7 +279,23 @@ public class HogwartsTestTaskController {
 
         log.info("报告管理-入参 taskId= "+ taskId);
 
-        return null;
+        if(Objects.isNull(taskId)){
+            return ResultDto.fail("任务id为空");
+        }
+
+        Integer userId = StrUtil.getUserId(request);
+
+        HogwartsTestTask hogwartsTestTask = new HogwartsTestTask();
+        hogwartsTestTask.setId(taskId);
+        hogwartsTestTask.setCreateUserId(userId);
+
+        ResultDto<String> resultDto = hogwartsTestTaskService.getAllureReport(hogwartsTestTask);
+
+
+        //String allureReportUrl = "http://stuq.ceshiren.com:8080/job/hogwarts_test_mini_start_test_1/31/allure";
+
+
+        return resultDto;
     }
 
 }

@@ -4,6 +4,7 @@ package com.hogwartsmini.demo.service;
 import com.hogwartsmini.demo.common.PageTableRequest;
 import com.hogwartsmini.demo.common.PageTableResponse;
 import com.hogwartsmini.demo.common.ResultDto;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
 import com.hogwartsmini.demo.dto.task.TestTaskDto;
 import com.hogwartsmini.demo.entity.HogwartsTestTask;
 
@@ -52,6 +53,20 @@ public interface HogwartsTestTaskService {
 	 */
 	ResultDto<HogwartsTestTask> updateStatus(HogwartsTestTask hogwartsTestTask);
 
+	/**
+	 *  执行测试接口
+	 * @param hogwartsTestTask
+	 * @return
+	 */
+	ResultDto<HogwartsTestTask> startTest(RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask);
+
+
+	/**
+	 *  获取allure报告地址接口
+	 * @param hogwartsTestTask
+	 * @return
+	 */
+	ResultDto<String> getAllureReport(HogwartsTestTask hogwartsTestTask);
 
 
 
