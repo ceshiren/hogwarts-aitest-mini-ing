@@ -82,6 +82,12 @@
             <version>1.5.21</version>
         </dependency>
 
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+
         <!-- 操作数据库相关的依赖 -->
 
         <dependency>
@@ -165,6 +171,7 @@
     </profiles>
 
     <build>
+        <finalName>hogwarts-mini</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -1,10 +1,11 @@
 package com.hogwartsmini.demo.dto.task;
 
 import com.hogwartsmini.demo.common.BaseDto;
-import com.sun.istack.internal.NotNull;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import javax.validation.constraints.NotNull;
 
 @ApiModel(value="执行测试任务类",description="请求参数类" )
 @Data

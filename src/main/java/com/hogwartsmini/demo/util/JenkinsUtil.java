@@ -1,9 +1,17 @@
 package com.hogwartsmini.demo.util;
 
+import com.alibaba.fastjson.JSONObject;
+import com.hogwartsmini.demo.common.Constants;
+import com.hogwartsmini.demo.common.ResultDto;
+import com.hogwartsmini.demo.dto.OperateJenkinsJobDto;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
+import com.hogwartsmini.demo.entity.HogwartsTestTask;
+import com.hogwartsmini.demo.entity.HogwartsTestUser;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import com.offbytwo.jenkins.model.Job;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,5 +80,67 @@ public class JenkinsUtil {
 
 
     }
+
+    public static StringBuilder updateTaskStatusUrl(RequestInfoDto requestInfoDto
+            , HogwartsTestTask hogwartsTestTask) {
+
+        StringBuilder updateTaskStatusUrl = new StringBuilder();
+        updateTaskStatusUrl.append("curl -X PUT ");
+        updateTaskStatusUrl.append("\""+requestInfoDto.getBaseUrl()+"task/status\" ");
+        updateTaskStatusUrl.append("-H \"Content-Type: application/json\" ");
+        updateTaskStatusUrl.append("-H \"token: "+requestInfoDto.getToken()+"\" ");
+        updateTaskStatusUrl.append("-d ");
+
+        JSONObject params = new JSONObject();
+        params.put("taskId",hogwartsTestTask.getId());
+        params.put("buildUrl","${BUILD_URL}");
+        params.put("status", Constants.STATUS_THREE);
+        updateTaskStatusUrl.append("'"+params.toJSONString()+"'");
+
+        return updateTaskStatusUrl;
+    }
+
+    public static ResultDto<HogwartsTestUser> build2(OperateJenkinsJobDto operateJenkinsJobDto) throws IOException, URISyntaxException {
+
+        ClassPathResource classPathResource = new ClassPathResource("JenkinsConfigDir/hogwarts_jenkins_test_start.xml");
+        InputStream inputStream = classPathResource.getInputStream();
+
+        String jobConfigXml = FileUtil.getText(inputStream);
+
+        String baseUrl = operateJenkinsJobDto.getJenkinsUrl();
+        String userName = operateJenkinsJobDto.getJenkinsUserName();
+        String password = operateJenkinsJobDto.getJenkinsPassword();
+
+        String jobName = "hogwarts_task_" + operateJenkinsJobDto.getToken();
+
+        JenkinsHttpClient jenkinsHttpClient = new JenkinsHttpClient(new URI(baseUrl),userName,password);
+        String jenkinsVersion = jenkinsHttpClient.getJenkinsVersion();
+        System.out.println("jenkinsVersion== "+ jenkinsVersion);
+
+        JenkinsServer jenkinsServer = new JenkinsServer(jenkinsHttpClient);
+
+        HogwartsTestUser hogwartsTestUser = operateJenkinsJobDto.getHogwartsTestUser();
+
+        String startTestJobName = hogwartsTestUser.getStartTestJobName();
+
+        //如果用户未创建job，则创建job，否则更新job，然后再构建job
+        if(StringUtils.isEmpty(startTestJobName)){
+            jenkinsServer.createJob(jobName,jobConfigXml,true);
+            hogwartsTestUser.setStartTestJobName(jobName);
+        }else {
+            jenkinsServer.updateJob(jobName,jobConfigXml,true);
+        }
+
+        Map<String, Job> jobMap = jenkinsServer.getJobs();
+
+        Job job = jobMap.get(jobName);
+
+        Map<String,String> map = operateJenkinsJobDto.getParams();
+
+        job.build(map,true);
+
+        return ResultDto.success("成功",hogwartsTestUser);
+    }
+
 
 }

@@ -14,6 +14,11 @@ public class StrUtil {
 
     public static Integer getUserId(HttpServletRequest request) {
         String userIdStr = request.getHeader(Constants.TOKEN);
+        return getUserId(userIdStr);
+    }
+
+
+    public static Integer getUserId(String userIdStr) {
         Integer userId = null;
         try{
             userId = Integer.parseInt(userIdStr);
