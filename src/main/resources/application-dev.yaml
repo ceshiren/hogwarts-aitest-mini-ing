@@ -25,3 +25,12 @@ logging:
 
 hogwarts:
   key1: Hogwarts232
+
+jenkins:
+  url: http://stuq.ceshiren.com:8080/
+  username: hogwarts
+  password: hogwarts123
+  casetype: 1
+  casesuffix: yml
+  testcommand: hrun
+  callbackurl: http://localhost:8091/
