@@ -1,16 +1,17 @@
+
 server:
-  port: 8081
+  port: 8091
   servlet:
     session:
-      timeout: 30m #30分钟，测试的话时间不能太短，否则不准。m(分钟)，s(秒)，h(小时)，不写单位默认毫秒
+      timeout: 30m #30分钟，测试的话时间不能太短，否则不准。m是分钟单位，s是秒的单位，h是小时的单位，不写单位的话默认是毫秒
 
 spring:
   application:
-    name: hogwarts-mini
+    name: aitest
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/hogwarts-mini?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 12345678
+    url: jdbc:mysql://stuq.ceshiren.com:13306/aitest_mini6?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: hogwarts2020
+    password: aitest@hogwarts2020
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
