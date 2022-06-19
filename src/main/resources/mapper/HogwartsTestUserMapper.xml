@@ -26,8 +26,7 @@
   </update>
 
 
-  <select id="getByName"
-          resultType="HogwartsTestUser">
+  <select id="getByName" resultType="HogwartsTestUser">
     SELECT * FROM hogwarts_test_user
     <where>
       <if test="userId != null">

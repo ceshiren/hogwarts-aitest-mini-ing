@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface HogwartsTestUserService {
 
-    String login(UserDto userDto);
+    ResultDto<UserDto> login(UserDto userDto);
 
     /**
      *  保存

@@ -30,7 +30,7 @@ import java.util.List;
  **/
 @Api(tags = "霍格沃兹测试学院-用户管理模块")
 @RestController
-@RequestMapping("hogwartsUser")
+@RequestMapping("user")
 @Slf4j
 public class HogwartsTestUserController {
 
@@ -45,16 +45,9 @@ public class HogwartsTestUserController {
     @PostMapping("login")
     public ResultDto<UserDto> login(@RequestBody UserDto userDto){
 
-        String result = hogwartsTestUserService.login(userDto);
+        ResultDto<UserDto> result = hogwartsTestUserService.login(userDto);
 
-        if(userDto.getName().contains("error2")){
-            throw new NullPointerException();
-        }
-        if(userDto.getName().contains("error")){
-            ServiceException.throwEx("用户名中含有error");
-        }
-
-        return ResultDto.success("成功 " + result + " hogwartsKey1= "+ hogwartsKey1,userDto);
+        return result;
     }
 
 

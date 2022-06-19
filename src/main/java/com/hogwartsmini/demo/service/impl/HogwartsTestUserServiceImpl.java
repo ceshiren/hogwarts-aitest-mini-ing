@@ -6,11 +6,11 @@ import com.hogwartsmini.demo.dto.UserDto;
 import com.hogwartsmini.demo.entity.HogwartsTestUser;
 import com.hogwartsmini.demo.service.HogwartsTestUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author tlibn
@@ -23,12 +23,26 @@ public class HogwartsTestUserServiceImpl implements HogwartsTestUserService {
     private HogwartsTestUserMapper hogwartsTestUserMapper;
 
     @Override
-    public String login(UserDto userDto){
+    public ResultDto<UserDto> login(UserDto userDto){
 
-        System.out.println("userDto.getName()" + userDto.getName());
-        System.out.println("userDto.getPwd()" + userDto.getPwd());
+        System.out.println("userDto.getName()" + userDto.getUserName());
+        System.out.println("userDto.getPwd()" + userDto.getPassword());
 
-        return userDto.getName() + "-" + userDto.getPwd();
+        HogwartsTestUser query = new HogwartsTestUser();
+        query.setUserName(userDto.getUserName());
+        query.setPassword(userDto.getPassword());
+
+        HogwartsTestUser result = hogwartsTestUserMapper.selectOne(query);
+
+        if(Objects.isNull(result)){
+            return ResultDto.fail("用户名密码错误或未注册");
+        }
+
+        userDto.setToken(result.getId());
+        userDto.setPassword(null);
+
+
+        return ResultDto.success("成功", userDto);
     }
 
     /**
@@ -42,6 +56,16 @@ public class HogwartsTestUserServiceImpl implements HogwartsTestUserService {
 
         hogwartsTestUser.setCreateTime(new Date());
         hogwartsTestUser.setUpdateTime(new Date());
+
+        HogwartsTestUser query = new HogwartsTestUser();
+        query.setUserName(hogwartsTestUser.getUserName());
+
+        HogwartsTestUser result = hogwartsTestUserMapper.selectOne(query);
+
+        if(Objects.nonNull(result)){
+            return ResultDto.fail("用户名已存在");
+        }
+
         hogwartsTestUserMapper.insertUseGeneratedKeys(hogwartsTestUser);
 
         return ResultDto.success("成功",hogwartsTestUser);
