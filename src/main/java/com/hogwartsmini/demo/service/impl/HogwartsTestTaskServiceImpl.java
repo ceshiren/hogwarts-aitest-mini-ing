@@ -6,12 +6,16 @@ import com.hogwartsmini.demo.dao.HogwartsTestCaseMapper;
 import com.hogwartsmini.demo.dao.HogwartsTestTaskCaseRelMapper;
 import com.hogwartsmini.demo.dao.HogwartsTestTaskMapper;
 import com.hogwartsmini.demo.dao.HogwartsTestUserMapper;
+import com.hogwartsmini.demo.dto.AllureReportDto;
+import com.hogwartsmini.demo.dto.OperateJenkinsJobDto;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
 import com.hogwartsmini.demo.dto.task.AddHogwartsTestTaskDto;
 import com.hogwartsmini.demo.dto.task.TestTaskDto;
 import com.hogwartsmini.demo.entity.HogwartsTestCase;
 import com.hogwartsmini.demo.entity.HogwartsTestTask;
 import com.hogwartsmini.demo.entity.HogwartsTestTaskCaseRel;
 import com.hogwartsmini.demo.service.HogwartsTestTaskService;
+import com.hogwartsmini.demo.util.JenkinsUtil;
 import com.hogwartsmini.demo.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -219,15 +224,31 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
     /**
      * 开始执行测试任务信息
      *
+     * @param requestInfoDto
      * @param hogwartsTestTask
      * @return
      */
-/*    @Override
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public ResultDto startTask(RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask) throws IOException {
 
-        return null;
-    }*/
+        HogwartsTestTask query = new HogwartsTestTask();
+        query.setId(hogwartsTestTask.getId());
+        query.setCreateUserId(hogwartsTestTask.getCreateUserId());
+
+        HogwartsTestTask result = hogwartsTestTaskMapper.selectOne(query);
+
+        if(Objects.isNull(result)){
+            return ResultDto.fail("任务不存在");
+        }
+
+        result.setStatus(Constants.STATUS_TWO);
+        hogwartsTestTaskMapper.updateByPrimaryKeySelective(result);
+
+
+        return ResultDto.success("成功");
+    }
+
 
     /**
      * 修改测试任务状态信息
@@ -263,6 +284,47 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
         }
 
         return ResultDto.success("成功");
+    }
+
+    /**
+     * 获取allure报告
+     *
+     * @param userId
+     * @param taskId
+     * @return
+     */
+    @Override
+    public ResultDto<AllureReportDto> getAllureReport(Integer userId, Integer taskId) {
+
+        HogwartsTestTask queryHogwartsTestTask = new HogwartsTestTask();
+
+        queryHogwartsTestTask.setId(taskId);
+        queryHogwartsTestTask.setCreateUserId(userId);
+
+        HogwartsTestTask result = hogwartsTestTaskMapper.selectOne(queryHogwartsTestTask);
+
+        //如果为空，则提示
+        if (Objects.isNull(result)) {
+            return ResultDto.fail("未查到测试任务信息");
+        }
+
+        String allureReportUrl = result.getBuildUrl();
+        if(StringUtils.isEmpty(allureReportUrl)){
+            return ResultDto.fail("测试任务的报告信息不存在");
+        }
+
+        AllureReportDto allureReportDto = new AllureReportDto();
+        allureReportDto.setTaskId(taskId);
+
+        OperateJenkinsJobDto operateJenkinsJobDto = new OperateJenkinsJobDto();
+        operateJenkinsJobDto.setJenkinsUrl(jenkinsUrl);
+        operateJenkinsJobDto.setJenkinsUserName(jenkinsUserName);
+        operateJenkinsJobDto.setJenkinsPassword(jenkinsPassword);
+
+        //"http://stuq.ceshiren.com:8080 /job/hogwarts_test_mini_start_test_1/31/ allure"
+        allureReportDto.setAllureReportUrl(JenkinsUtil.getAllureReportUrl(allureReportUrl, operateJenkinsJobDto));
+
+        return ResultDto.success("成功", allureReportDto);
     }
 
     /**
@@ -329,20 +391,5 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
 
 
     }
-
-    /**
-     * 获取allure报告
-     *
-     * @param userId
-     * @param taskId
-     * @return
-     */
-   /* @Override
-    public ResultDto<AllureReportDto> getAllureReport(Integer userId, Integer taskId) {
-
-
-
-        return null;
-    }*/
 
 }

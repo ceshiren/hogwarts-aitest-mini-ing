@@ -1,5 +1,6 @@
 package com.hogwartsmini.demo.util;
 
+import com.hogwartsmini.demo.dto.OperateJenkinsJobDto;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import com.offbytwo.jenkins.model.Job;
@@ -71,6 +72,41 @@ public class JenkinsUtil {
         job.build(true);*/
 
 
+    }
+
+    public static String getAllureReportUrl(String buildUrl, OperateJenkinsJobDto operateJenkinsJobDto, boolean autoLoginFlag){
+
+        if(autoLoginFlag){
+            return getAllureReportUrl(buildUrl, operateJenkinsJobDto);
+        }
+
+
+        return buildUrl + "allure";
+    }
+
+    public static String getAllureReportUrl(String buildUrl, OperateJenkinsJobDto operateJenkinsJobDto){
+
+        String allureReportBaseUrl = operateJenkinsJobDto.getJenkinsUrl()
+                + "j_acegi_security_check?j_username=" + operateJenkinsJobDto.getJenkinsUserName()
+                + "&j_password=" + operateJenkinsJobDto.getJenkinsPassword()
+                + "&Submit=登录&from=";
+
+        String allureReportUrl = allureReportBaseUrl + buildUrl.substring(buildUrl.indexOf("/job"));
+
+        return allureReportUrl + "allure";
+    }
+
+    public static void main(String[] args) {
+        String buildUrl = "http://stuq.ceshiren.com:8080/job/hogwarts_test_mini_start_test_1/31/";
+
+        OperateJenkinsJobDto operateJenkinsJobDto = new OperateJenkinsJobDto();
+        operateJenkinsJobDto.setJenkinsUrl("http://stuq.ceshiren.com:8080/");
+        operateJenkinsJobDto.setJenkinsUserName("hogwarts");
+        operateJenkinsJobDto.setJenkinsPassword("hogwarts123");
+
+        System.out.println("自动登录url= " + getAllureReportUrl(buildUrl,operateJenkinsJobDto, true));
+        System.out.println("========");
+        System.out.println("手动登录url= " + getAllureReportUrl(buildUrl,operateJenkinsJobDto, false));
     }
 
 }

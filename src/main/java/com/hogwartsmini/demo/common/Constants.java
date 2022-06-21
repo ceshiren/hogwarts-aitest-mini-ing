@@ -26,6 +26,10 @@ public interface Constants {
 	 */
 	public final static Integer STATUS_ONE = 1;
 	/**
+	 * 2 执行中
+	 */
+	public final static Integer STATUS_TWO = 2;
+	/**
 	 * 任务完成 3
 	 */
 	public final static Integer STATUS_THREE = 3;

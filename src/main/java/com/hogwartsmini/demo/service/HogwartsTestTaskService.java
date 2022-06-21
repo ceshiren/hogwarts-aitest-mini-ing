@@ -4,6 +4,8 @@ package com.hogwartsmini.demo.service;
 import com.hogwartsmini.demo.common.PageTableRequest;
 import com.hogwartsmini.demo.common.PageTableResponse;
 import com.hogwartsmini.demo.common.ResultDto;
+import com.hogwartsmini.demo.dto.AllureReportDto;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
 import com.hogwartsmini.demo.dto.task.TestTaskDto;
 import com.hogwartsmini.demo.entity.HogwartsTestTask;
 
@@ -51,9 +53,8 @@ public interface HogwartsTestTaskService {
 	 *  开始执行测试任务信息
 	 * @param hogwartsTestTask
 	 * @return
-	 *//*
+	 */
 	ResultDto startTask(RequestInfoDto requestInfoDto, HogwartsTestTask hogwartsTestTask) throws IOException;
-*/
 	/**
 	 *  修改测试任务状态信息
 	 * @param hogwartsTestTask
@@ -67,7 +68,7 @@ public interface HogwartsTestTaskService {
 	 * @param taskId
 	 * @return
 	 */
-	//ResultDto<AllureReportDto> getAllureReport(Integer userId, Integer taskId);
+	ResultDto<AllureReportDto> getAllureReport(Integer userId, Integer taskId);
 
 
 }

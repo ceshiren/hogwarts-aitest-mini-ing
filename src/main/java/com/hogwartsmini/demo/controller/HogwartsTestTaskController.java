@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.hogwartsmini.demo.common.PageTableRequest;
 import com.hogwartsmini.demo.common.PageTableResponse;
 import com.hogwartsmini.demo.common.ResultDto;
+import com.hogwartsmini.demo.dto.AllureReportDto;
+import com.hogwartsmini.demo.dto.RequestInfoDto;
 import com.hogwartsmini.demo.dto.task.*;
 import com.hogwartsmini.demo.entity.HogwartsTestTask;
 import com.hogwartsmini.demo.service.HogwartsTestTaskService;
@@ -235,25 +237,54 @@ public class HogwartsTestTaskController {
      * @return
      * @throws Exception
      */
-    /*@PostMapping("start")
+    @PostMapping("/start")
     @ApiOperation(value = "开始测试", notes = "开始测试-说明", httpMethod = "POST", response = ResultDto.class)
     public ResultDto testStart(HttpServletRequest request
             , @ApiParam(name="修改测试任务状态对象", required=true)@RequestBody StartTestDto startTestDto) throws Exception {
         log.info("=====开始测试-请求入参====："+ JSONObject.toJSONString(startTestDto));
 
 
-    }*/
+        if(Objects.isNull(startTestDto)){
+            return ResultDto.fail("参数不能为空");
+        }
+        if(Objects.isNull(startTestDto.getTaskId())){
+            return ResultDto.fail("任务id不能为空");
+        }
+
+        Integer userId = StrUtil.getUserId(request);
+
+        HogwartsTestTask hogwartsTestTask = new HogwartsTestTask();
+        hogwartsTestTask.setId(startTestDto.getTaskId());
+        hogwartsTestTask.setCreateUserId(userId);
+        hogwartsTestTask.setTestCommand(startTestDto.getTestCommand());
+
+        RequestInfoDto requestInfoDto = new RequestInfoDto();
+
+        requestInfoDto.setBaseUrl(jenkinsCallbackUrl);
+        requestInfoDto.setRequestUrl(jenkinsCallbackUrl);
+        requestInfoDto.setToken(userId+"");
+
+        log.info("requestInfoDto=  " + JSONObject.toJSONString(requestInfoDto));
+
+        return hogwartsTestTaskService.startTask(requestInfoDto, hogwartsTestTask);
+    }
 
     /**
      *
      * @param taskId
      * @return
      */
-   /* @ApiOperation(value = "获取allure报告")
+    @ApiOperation(value = "获取allure报告")
     @GetMapping("/allureReport/{taskId}")
     public ResultDto<AllureReportDto> getAllureReport(HttpServletRequest request, @PathVariable Integer taskId){
 
 
-    }*/
+        Integer userId = StrUtil.getUserId(request);
+
+        ResultDto resultDto = hogwartsTestTaskService.getAllureReport(userId, taskId);
+
+        return resultDto;
+
+    }
 
 }
