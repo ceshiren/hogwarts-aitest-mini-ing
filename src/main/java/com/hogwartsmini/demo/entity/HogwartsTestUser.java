@@ -38,7 +38,7 @@ public class HogwartsTestUser extends BaseEntityNew {
     private String autoCreateCaseJobName;
 
     /**
-     * 执行测试job名称 不为空时表示已经创建job
+     * 执行测试job名称 不为空时 表示已经创建job
      */
     @Column(name = "start_test_job_name")
     private String startTestJobName;

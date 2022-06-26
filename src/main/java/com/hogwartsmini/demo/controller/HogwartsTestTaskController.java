@@ -243,7 +243,7 @@ public class HogwartsTestTaskController {
             , @ApiParam(name="修改测试任务状态对象", required=true)@RequestBody StartTestDto startTestDto) throws Exception {
         log.info("=====开始测试-请求入参====："+ JSONObject.toJSONString(startTestDto));
 
-
+        //参数校验
         if(Objects.isNull(startTestDto)){
             return ResultDto.fail("参数不能为空");
         }
@@ -251,15 +251,17 @@ public class HogwartsTestTaskController {
             return ResultDto.fail("任务id不能为空");
         }
 
+        //获取token
         Integer userId = StrUtil.getUserId(request);
 
+        //组装HogwartsTestTask参数
         HogwartsTestTask hogwartsTestTask = new HogwartsTestTask();
         hogwartsTestTask.setId(startTestDto.getTaskId());
         hogwartsTestTask.setCreateUserId(userId);
         hogwartsTestTask.setTestCommand(startTestDto.getTestCommand());
 
+        //组装RequestInfoDto参数
         RequestInfoDto requestInfoDto = new RequestInfoDto();
-
         requestInfoDto.setBaseUrl(jenkinsCallbackUrl);
         requestInfoDto.setRequestUrl(jenkinsCallbackUrl);
         requestInfoDto.setToken(userId+"");

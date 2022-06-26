@@ -14,6 +14,7 @@ import com.hogwartsmini.demo.dto.task.TestTaskDto;
 import com.hogwartsmini.demo.entity.HogwartsTestCase;
 import com.hogwartsmini.demo.entity.HogwartsTestTask;
 import com.hogwartsmini.demo.entity.HogwartsTestTaskCaseRel;
+import com.hogwartsmini.demo.entity.HogwartsTestUser;
 import com.hogwartsmini.demo.service.HogwartsTestTaskService;
 import com.hogwartsmini.demo.util.JenkinsUtil;
 import com.hogwartsmini.demo.util.StrUtil;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 
 @Slf4j
@@ -238,13 +240,61 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
 
         HogwartsTestTask result = hogwartsTestTaskMapper.selectOne(query);
 
+        //参数校验
         if(Objects.isNull(result)){
             return ResultDto.fail("任务不存在");
         }
 
+        //更新任务状态为执行中
         result.setStatus(Constants.STATUS_TWO);
         hogwartsTestTaskMapper.updateByPrimaryKeySelective(result);
 
+        HogwartsTestUser hogwartsTestUser = new HogwartsTestUser();
+        hogwartsTestUser.setId(Integer.parseInt(requestInfoDto.getToken()));
+        HogwartsTestUser hogwartsTestUserResult = hogwartsTestUserMapper.selectOne(hogwartsTestUser);
+        String startTestJobName =  hogwartsTestUserResult.getStartTestJobName();
+
+        //获取更新任务状态的回调地址updateStatusUrl
+        StringBuilder updateTaskStatusUrl = JenkinsUtil.makeUpdateTaskStatusUrl(requestInfoDto, hogwartsTestTask);
+
+        //组装Jenkins构建参数
+        Map<String, String> params = new HashMap<>();
+        params.put("aitestBaseUrl",requestInfoDto.getBaseUrl());
+        params.put("token",requestInfoDto.getToken());
+        params.put("testCommand",result.getTestCommand());
+
+
+        params.put("updateStatusData",updateTaskStatusUrl.toString());
+
+        //组装调用Jenkins API的参数
+        OperateJenkinsJobDto operateJenkinsJobDto = new OperateJenkinsJobDto();
+        operateJenkinsJobDto.setToken(requestInfoDto.getToken());
+        operateJenkinsJobDto.setJenkinsUrl(jenkinsUrl);
+        operateJenkinsJobDto.setJenkinsUserName(jenkinsUserName);
+        operateJenkinsJobDto.setJenkinsPassword(jenkinsPassword);
+        operateJenkinsJobDto.setParams(params);
+        operateJenkinsJobDto.setHogwartsTestUser(hogwartsTestUserResult);
+
+        //设置默认的Jenkins构建成功返回对象
+        ResultDto<HogwartsTestUser> build2ResultDto = ResultDto.success("成功");
+
+        try {
+            //调用Jenkins API
+            build2ResultDto = JenkinsUtil.build2(operateJenkinsJobDto);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new ServiceException(e.getMessage());
+        }
+
+        if(build2ResultDto.getResultCode()==0){
+            throw new ServiceException(build2ResultDto.getMessage());
+        }
+
+
+        if(StringUtils.isEmpty(startTestJobName)){
+            HogwartsTestUser hogwartsTestUser1 = build2ResultDto.getData();
+            hogwartsTestUserMapper.updateByPrimaryKeySelective(hogwartsTestUser1);
+        }
 
         return ResultDto.success("成功");
     }
@@ -342,8 +392,7 @@ public class HogwartsTestTaskServiceImpl implements HogwartsTestTaskService {
 
             for (HogwartsTestCase hogwartsTestCase:testCaseList) {
                 testCommand.append(jenkinsTestCommand).append(" ");
-                testCommand.append(hogwartsTestCase.getCaseData());
-                testCommand.append("\n");
+                testCommand.append(" || true").append("\n");
             }
 
         }
